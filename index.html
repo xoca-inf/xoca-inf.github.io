@@ -1,45 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="style.css">
-	<title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин товаров</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .product-card {
+            background-color: white;
+            border-radius: 10px;
+            width: 200px;
+            margin: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .product-card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .product-name {
+            font-size: 18px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .product-price {
+            color: #2e8b57;
+            font-size: 16px;
+        }
+        .quantity-control {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .quantity-control button {
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .quantity-display {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-	<div class="container">
-		<div class="inner">
-			<div class="item">
-				<img src="cat.jpg" alt="" class="img">
-				<button class="btn" id="btn1">Add</button>
-			</div>
-			<div class="item">
-				<img src="cat.jpg" alt="" class="img">
-				<button class="btn" id="btn2">Add</button>
-			</div>
-			<div class="item">
-				<img src="cat.jpg" alt="" class="img">
-				<button class="btn" id="btn3">Add</button>
-			</div>
-			<div class="item">
-				<img src="cat.jpg" alt="" class="img">
-				<button class="btn" id="btn4">Add</button>
-			</div>
-			<div class="item">
-				<img src="cat.jpg" alt="" class="img">
-				<button class="btn" id="btn5">Add</button>
-			</div>
-			<div class="item">
-				<img src="cat.jpg" alt="" class="img">
-				<button class="btn" id="btn6">Add</button>
-			</div>
-		</div>
-	</div>
-	<div class="usercard" id="usercard">
-		
-	</div>
+    <div class="container">
+        <div class="product-card" data-price="500">
+            <div class="counter" id="counter1">0</div>
+            <img src="https://via.placeholder.com/200" alt="Товар 1">
+            <div class="product-name">Товар 1</div>
+            <div class="product-price">500 тенге</div>
+            <div class="quantity-control">
+                <button onclick="decrement(1)">-</button>
+                <div class="quantity-display" id="quantity1">0</div>
+                <button onclick="increment(1)">+</button>
+            </div>
+        </div>
 
-	<script src="https://telegram.org/js/telegram-web-app.js"></script>
-	<script src="app.js"></script>
+        <div class="product-card" data-price="1000">
+            <div class="counter" id="counter2">0</div>
+            <img src="https://via.placeholder.com/200" alt="Товар 2">
+            <div class="product-name">Товар 2</div>
+            <div class="product-price">1000 тенге</div>
+            <div class="quantity-control">
+                <button onclick="decrement(2)">-</button>
+                <div class="quantity-display" id="quantity2">0</div>
+                <button onclick="increment(2)">+</button>
+            </div>
+        </div>
+
+        <div class="product-card" data-price="1500">
+            <div class="counter" id="counter3">0</div>
+            <img src="https://via.placeholder.com/200" alt="Товар 3">
+            <div class="product-name">Товар 3</div>
+            <div class="product-price">1500 тенге</div>
+            <div class="quantity-control">
+                <button onclick="decrement(3)">-</button>
+                <div class="quantity-display" id="quantity3">0</div>
+                <button onclick="increment(3)">+</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let totalAmount = 0;
+        const quantities = [0, 0, 0];
+
+        function increment(productId) {
+            const price = parseInt(document.querySelector(`.product-card:nth-child(${productId})`).dataset.price);
+            quantities[productId - 1]++;
+            totalAmount += price;
+            updateUI(productId);
+        }
+
+        function decrement(productId) {
+            const price = parseInt(document.querySelector(`.product-card:nth-child(${productId})`).dataset.price);
+            if (quantities[productId - 1] > 0) {
+                quantities[productId - 1]--;
+                totalAmount -= price;
+                updateUI(productId);
+            }
+        }
+
+        function updateUI(productId) {
+            document.getElementById(`quantity${productId}`).textContent = quantities[productId - 1];
+            document.getElementById(`counter${productId}`).textContent = quantities[productId - 1];
+            updateMainButton();
+        }
+
+        function updateMainButton() {
+            if (totalAmount > 0) {
+                tg.MainButton.setText(`Оплатить ${totalAmount} тенге`);
+                tg.MainButton.show();
+            } else {
+                tg.MainButton.hide();
+            }
+        }
+
+        // Инициализация Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.MainButton.onClick(() => {
+            const senderId = tg.initDataUnsafe.user.id;
+            const receiverId = tg.initDataUnsafe.user.id;  // Укажите receiver_id, если нужен другой
+
+            const requestData = {
+                amount: totalAmount,
+                currency: 'тенге',
+                createdBy: senderId,
+                paidBy: receiverId,
+                callbackUrl: tg.initDataUnsafe.user.id
+            };
+
+            fetch('https://your-backend-url.com/external/create-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                tg.MainButton.setText("Ожидание оплаты...");
+                tg.MainButton.hide();  // Скрыть кнопку после нажатия
+                tg.close();  // Закрыть WebApp после успешной отправки
+            })
+            .catch(error => console.error('Ошибка при создании платежа:', error));
+        });
+
+        // Готовность WebApp
+        tg.ready();
+    </script>
 </body>
 </html>
